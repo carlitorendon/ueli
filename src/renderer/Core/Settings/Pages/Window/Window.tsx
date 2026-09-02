@@ -4,11 +4,13 @@ import { SettingGroup } from "@Core/Settings/SettingGroup";
 import { SettingGroupList } from "../../SettingGroupList";
 import { AlwaysOnTop } from "./AlwaysOnTop";
 import { BackgroundMaterial } from "./BackgroundMaterial";
+import { Height } from "./Height";
 import { HideWindowOn } from "./HideWindowOn";
 import { Opacity } from "./Opacity";
 import { ScrollBehavior } from "./ScrollBehavior";
 import { ShowOnStartup } from "./ShowOnStartup";
 import { Vibrancy } from "./Vibrancy";
+import { Width } from "./Width";
 import { WorkspaceVisibility } from "./WorkspaceVisibility";
 
 export const Window = () => {
@@ -38,6 +40,11 @@ export const Window = () => {
                 )}
                 {operatingSystem === "Windows" && backgroundMaterial === "Acrylic" && <Opacity />}
                 {operatingSystem === "macOS" && <Vibrancy />}
+            </SettingGroup>
+
+            <SettingGroup title="Size">
+                <Width />
+                <Height />
             </SettingGroup>
         </SettingGroupList>
     );

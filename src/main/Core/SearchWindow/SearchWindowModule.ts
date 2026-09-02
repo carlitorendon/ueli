@@ -10,6 +10,7 @@ import {
     MacOsBrowserWindowConstructorOptionsProvider,
     WindowsBrowserWindowConstructorOptionsProvider,
 } from "./BrowserWindowConstructorOptionsProvider";
+import { minWindowSize } from "./BrowserWindowConstructorOptionsProvider/defaultWindowSize";
 import { BrowserWindowToggler } from "./BrowserWindowToggler";
 
 export class SearchWindowModule {
@@ -24,6 +25,7 @@ export class SearchWindowModule {
         const ipcMain = moduleRegistry.get("IpcMain");
         const nativeTheme = moduleRegistry.get("NativeTheme");
         const operatingSystem = moduleRegistry.get("OperatingSystem");
+        const screen = moduleRegistry.get("Screen");
         const settingsManager = moduleRegistry.get("SettingsManager");
         const vibrancyProvider = moduleRegistry.get("BrowserWindowVibrancyProvider");
         const browserWindowRegistry = moduleRegistry.get("BrowserWindowRegistry");
@@ -33,6 +35,7 @@ export class SearchWindowModule {
             app,
             settingsManager,
             appIconFilePathResolver,
+            screen,
         ).get();
 
         const browserWindowConstructorOptionsProviders: Record<
@@ -50,6 +53,35 @@ export class SearchWindowModule {
         const searchWindow = new BrowserWindow(browserWindowConstructorOptionsProviders[operatingSystem].get());
 
         searchWindow.on("close", () => browserWindowRegistry.getById("settings")?.close());
+
+        // Distinguishes a resize we triggered ourselves (applying a persisted setting) from a manual drag-resize by
+        // the user, so the two don't keep re-triggering each other in an infinite loop. This can't be done by
+        // comparing sizes (Windows' DPI scaling can make `getSize()` return a slightly different value than what was
+        // just passed to `setSize()`, which would let a self-triggered resize slip through as if it were a user one).
+        let isApplyingProgrammaticResize = false;
+        let resizeDebounceTimeout: NodeJS.Timeout;
+
+        const applySize = (width: number, height: number) => {
+            isApplyingProgrammaticResize = true;
+            searchWindow.setSize(width, height);
+            setImmediate(() => {
+                isApplyingProgrammaticResize = false;
+            });
+        };
+
+        searchWindow.on("resize", () => {
+            if (isApplyingProgrammaticResize) {
+                return;
+            }
+
+            clearTimeout(resizeDebounceTimeout);
+
+            resizeDebounceTimeout = setTimeout(() => {
+                const [width, height] = searchWindow.getSize();
+                settingsManager.updateValue("window.width", width);
+                settingsManager.updateValue("window.height", height);
+            }, 300);
+        });
 
         browserWindowRegistry.register("search", searchWindow);
 
@@ -127,6 +159,18 @@ export class SearchWindowModule {
 
         eventSubscriber.subscribe("settingUpdated[window.visibleOnAllWorkspaces]", ({ value }: { value: boolean }) => {
             searchWindow.setVisibleOnAllWorkspaces(value);
+        });
+
+        eventSubscriber.subscribe("settingUpdated[window.width]", ({ value }: { value: number }) => {
+            if (Number.isFinite(value) && value >= minWindowSize.width) {
+                applySize(value, searchWindow.getSize()[1]);
+            }
+        });
+
+        eventSubscriber.subscribe("settingUpdated[window.height]", ({ value }: { value: number }) => {
+            if (Number.isFinite(value) && value >= minWindowSize.height) {
+                applySize(searchWindow.getSize()[0], value);
+            }
         });
 
         ipcMain.on("escapePressed", () => shouldHideWindowOnEscapePressed() && browserWindowToggler.hide());

@@ -2,21 +2,39 @@ import { join } from "path";
 
 import type { AppIconFilePathResolver } from "@Core/AppIconFilePathResolver";
 import type { SettingsManager } from "@Core/SettingsManager";
-import type { App } from "electron";
+import type { App, Screen } from "electron";
 
 import type { BrowserWindowConstructorOptionsProvider } from "./BrowserWindowConstructorOptionsProvider";
-import { defaultWindowSize } from "./defaultWindowSize";
+import { defaultWindowSize, minWindowSize } from "./defaultWindowSize";
+
+// Guards against a persisted value that is missing, non-numeric (e.g. corrupted or hand-edited settings.json), or
+// outside a sane range, and clamps it to the current display's work area so a size persisted on a larger display
+// never overflows a smaller one (e.g. after switching monitors or resolutions).
+const clamp = (value: number, min: number, max: number): number =>
+    Number.isFinite(value) ? Math.min(Math.max(value, min), max) : min;
 
 export class DefaultBrowserWindowConstructorOptionsProvider implements BrowserWindowConstructorOptionsProvider {
     public constructor(
         private readonly app: App,
         private readonly settingsManager: SettingsManager,
         private readonly appIconFilePathResolver: AppIconFilePathResolver,
+        private readonly screen: Screen,
     ) {}
 
     public get(): Electron.BrowserWindowConstructorOptions {
+        const { width: maxWidth, height: maxHeight } = this.screen.getPrimaryDisplay().workAreaSize;
+
         return {
-            ...defaultWindowSize,
+            width: clamp(
+                this.settingsManager.getValue<number>("window.width", defaultWindowSize.width),
+                minWindowSize.width,
+                maxWidth,
+            ),
+            height: clamp(
+                this.settingsManager.getValue<number>("window.height", defaultWindowSize.height),
+                minWindowSize.height,
+                maxHeight,
+            ),
             frame: false,
             show: this.settingsManager.getValue<boolean>("window.showOnStartup", true),
             webPreferences: {

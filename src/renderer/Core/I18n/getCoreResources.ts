@@ -1238,6 +1238,8 @@ export const getCoreResources = (): { namespace: string; resources: Resources<Tr
                     "scrollBehavior.smooth": "Smooth",
                     "scrollBehavior.instant": "Instant",
                     visibleOnAllWorkspaces: "Visible on all workspaces",
+                    width: "Width",
+                    height: "Height",
                 },
                 "de-CH": {
                     title: "Fenster",
@@ -1253,6 +1255,8 @@ export const getCoreResources = (): { namespace: string; resources: Resources<Tr
                     "scrollBehavior.smooth": "Reibungslos",
                     "scrollBehavior.instant": "Sofort",
                     visibleOnAllWorkspaces: "Auf allen Workspaces sichtbar",
+                    width: "Breite",
+                    height: "Höhe",
                 },
                 "ja-JP": {
                     title: "入力パネル",
@@ -1268,6 +1272,8 @@ export const getCoreResources = (): { namespace: string; resources: Resources<Tr
                     "scrollBehavior.smooth": "滑らか",
                     "scrollBehavior.instant": "アイテム単位",
                     visibleOnAllWorkspaces: "すべてのワークスペースで表示",
+                    width: "幅",
+                    height: "高さ",
                 },
                 "ko-KR": {
                     title: "창",
@@ -1283,6 +1289,8 @@ export const getCoreResources = (): { namespace: string; resources: Resources<Tr
                     "scrollBehavior.smooth": "부드럽게",
                     "scrollBehavior.instant": "즉시",
                     visibleOnAllWorkspaces: "모든 작업 공간에 표시",
+                    width: "너비",
+                    height: "높이",
                 },
                 "fr-FR": {
                     title: "Fenêtre",
@@ -1298,6 +1306,8 @@ export const getCoreResources = (): { namespace: string; resources: Resources<Tr
                     "scrollBehavior.smooth": "Doux",
                     "scrollBehavior.instant": "Instantané",
                     visibleOnAllWorkspaces: "Visible sur tous les espaces de travail",
+                    width: "Largeur",
+                    height: "Hauteur",
                 },
                 "zh-CN": {
                     title: "窗口",
@@ -1313,6 +1323,8 @@ export const getCoreResources = (): { namespace: string; resources: Resources<Tr
                     "scrollBehavior.smooth": "平滑",
                     "scrollBehavior.instant": "瞬时",
                     visibleOnAllWorkspaces: "在所有工作空间可见",
+                    width: "宽度",
+                    height: "高度",
                 },
                 "zh-TW": {
                     title: "視窗",
@@ -1328,6 +1340,8 @@ export const getCoreResources = (): { namespace: string; resources: Resources<Tr
                     "scrollBehavior.smooth": "平滑",
                     "scrollBehavior.instant": "即時",
                     visibleOnAllWorkspaces: "在所有工作區可見",
+                    width: "寬度",
+                    height: "高度",
                 },
             },
         },
